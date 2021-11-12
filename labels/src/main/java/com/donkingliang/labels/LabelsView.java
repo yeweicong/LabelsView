@@ -6,13 +6,21 @@ import android.content.res.TypedArray;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Parcelable;
+import android.text.InputType;
+import android.text.TextUtils;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
+import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
+import android.view.inputmethod.EditorInfo;
+import android.widget.EditText;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -42,8 +50,10 @@ public class LabelsView extends ViewGroup implements View.OnClickListener, View.
     private boolean isSingleLine = false;
     private boolean isTextBold = false;
     private boolean isEnableClear = false;
+    private boolean isSearchEnd = false;
     private Drawable mDrawableClear = null;
-    private LabelTextProvider mLabelTextProvider;
+    private int mLastLineWidth = 0;
+    private int mMaxLineWidth = 0;
 
     private boolean isIndicator; //只能看，不能手动改变选中状态。
 
@@ -66,6 +76,9 @@ public class LabelsView extends ViewGroup implements View.OnClickListener, View.
     private OnLabelLongClickListener mLabelLongClickListener;
     private OnLabelSelectChangeListener mLabelSelectChangeListener;
     private OnSelectChangeIntercept mOnSelectChangeIntercept;
+    private SearchBarActionListener mSearchBarActionListener;
+
+    private EditText mSearchEndEditText;
 
     /**
      * Label的选择类型
@@ -177,6 +190,7 @@ public class LabelsView extends ViewGroup implements View.OnClickListener, View.
             isSingleLine = mTypedArray.getBoolean(R.styleable.LabelsView_singleLine, false);
             isTextBold = mTypedArray.getBoolean(R.styleable.LabelsView_isTextBold, false);
             isEnableClear = mTypedArray.getBoolean(R.styleable.LabelsView_isEnableClear, false);
+            isSearchEnd = mTypedArray.getBoolean(R.styleable.LabelsView_isSearchEnd, false);
             mDrawableClear = mTypedArray.getDrawable(R.styleable.LabelsView_clearDrawable);
 
             mTypedArray.recycle();
@@ -299,6 +313,8 @@ public class LabelsView extends ViewGroup implements View.OnClickListener, View.
                 }
             }
         }
+        mLastLineWidth = lineWidth;
+        mMaxLineWidth = maxWidth;
         contentHeight += maxItemHeight;
         maxLineWidth = Math.max(maxLineWidth, lineWidth);
 
@@ -552,8 +568,6 @@ public class LabelsView extends ViewGroup implements View.OnClickListener, View.
         removeAllViews();
         mLabels.clear();
 
-        mLabelTextProvider = provider;
-
         if (labels != null) {
             mLabels.addAll(labels);
             int size = labels.size();
@@ -566,6 +580,14 @@ public class LabelsView extends ViewGroup implements View.OnClickListener, View.
         if (mSelectType == SelectType.SINGLE_IRREVOCABLY) {
             setSelects(0);
         }
+
+        addEditTextView();
+    }
+
+    public <T> void removeLastLabel(){
+        if (!mLabels.isEmpty()) {
+            removeLabel(mLabels.get(mLabels.size() - 1));
+        }
     }
 
     public <T> void removeLabel(T label){
@@ -577,6 +599,8 @@ public class LabelsView extends ViewGroup implements View.OnClickListener, View.
         if (!mLabels.isEmpty() && mSelectLabels.isEmpty() && mSelectType == SelectType.SINGLE_IRREVOCABLY) {
             setSelects(0);
         }
+
+        addEditTextView();
     }
 
     public <T> void addLabel(T label, LabelTextProvider<T> provider){
@@ -585,6 +609,78 @@ public class LabelsView extends ViewGroup implements View.OnClickListener, View.
         addLabel(label, index, provider);
 
         ensureLabelClickable(index);
+
+        addEditTextView();
+    }
+
+    private void addEditTextView(){
+        if(!isSearchEnd){
+            return;
+        }
+        if(mSearchEndEditText == null){
+            mSearchEndEditText = new EditText(getContext());
+            mSearchEndEditText.setPadding(0, mTextPaddingTop, mTextPaddingRight, mTextPaddingBottom);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+                mSearchEndEditText.setBackground(null);
+            }
+            mSearchEndEditText.setCursorVisible(true);
+            mSearchEndEditText.setInputType(InputType.TYPE_CLASS_TEXT);
+            mSearchEndEditText.setTextSize(TypedValue.COMPLEX_UNIT_PX, mTextSize);
+            mSearchEndEditText.setImeOptions(EditorInfo.IME_ACTION_SEARCH);
+            mSearchEndEditText.setMaxLines(1);
+            mSearchEndEditText.setTextColor(Color.parseColor("#2B2B2B"));
+            mSearchEndEditText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+                @Override
+                public boolean onEditorAction(TextView textView, int i, KeyEvent keyEvent) {
+                    if(mSearchBarActionListener != null){
+                        String key = mSearchEndEditText.getText().toString();
+
+                        if(i == EditorInfo.IME_ACTION_SEARCH){
+                            if (!TextUtils.isEmpty(key)) {
+                                mSearchBarActionListener.onSearch(key);
+                            }
+                        }
+                    }
+                    return false;
+                }
+            });
+            mSearchEndEditText.setOnKeyListener(new OnKeyListener() {
+                @Override
+                public boolean onKey(View view, int i, KeyEvent keyEvent) {
+                    if(mSearchBarActionListener != null){
+                        if(i == KeyEvent.KEYCODE_DEL){
+                            String key = mSearchEndEditText.getText().toString();
+                            // 如果是最后一个 且点击删除按钮 会从后面删起
+                            if (TextUtils.isEmpty(key)) {
+                                removeLastLabel();
+                            }
+                        }
+                    }
+                    return false;
+                }
+            });
+        } else {
+            removeView(mSearchEndEditText);
+        }
+        Log.e("test1112", "111 mmw:" + mMaxLineWidth + " mlw:" + mLastLineWidth + " c:" + LabelsView.this.toString());
+
+        mSearchEndEditText.setFocusable(true);
+        mSearchEndEditText.setFocusableInTouchMode(true);
+        mSearchEndEditText.setSelection(0);
+        addView(mSearchEndEditText, LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+
+        if()
+        getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+            @Override
+            public void onGlobalLayout() {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+                    LabelsView.this.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+                }
+                Log.e("test1112", "mmw:" + mMaxLineWidth + " mlw:" + mLastLineWidth + " c:" + LabelsView.this.toString());
+                mSearchEndEditText.setWidth(mMaxLineWidth - mLastLineWidth);
+                mSearchEndEditText.invalidate();
+            }
+        });
     }
 
     /**
@@ -1236,6 +1332,10 @@ public class LabelsView extends ViewGroup implements View.OnClickListener, View.
         mOnSelectChangeIntercept = intercept;
     }
 
+    public void setSearchConfirmListener(SearchBarActionListener searchBarActionListener) {
+        mSearchBarActionListener = searchBarActionListener;
+    }
+
     /**
      * sp转px
      */
@@ -1329,6 +1429,17 @@ public class LabelsView extends ViewGroup implements View.OnClickListener, View.
 
         boolean isSelected();
 
+    }
+
+    /**
+     * 搜索动作监听
+     *
+     * onSearch：有搜索文字并且点击了搜索按钮
+     *
+     * onSearchDel：无搜索文字且点击了删除按钮
+     */
+    public interface SearchBarActionListener {
+        void onSearch(String searchKey);
     }
 
 }

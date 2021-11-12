@@ -70,6 +70,14 @@ public class MainActivity extends AppCompatActivity implements LabelsView.OnLabe
         testList.add(new TestBean("Python", 11));
         testList.add(new TestBean("Swift", 12));
 
+
+        labelsView.setSearchConfirmListener(new LabelsView.SearchBarActionListener() {
+            @Override
+            public void onSearch(String searchKey) {
+                Toast.makeText(MainActivity.this, searchKey, Toast.LENGTH_SHORT).show();
+            }
+
+        });
         labelsView.setLabels(testList, new LabelsView.LabelTextProvider<TestBean>() {
             @Override
             public CharSequence getLabelText(TextView label, int position, TestBean data) {

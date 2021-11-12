@@ -73,6 +73,7 @@
         <attr name="singleLine" format="boolean" />
         <attr name="isTextBold" format="boolean" />
         <attr name="isEnableClear" format="boolean" />
+        <attr name="isSearchEnd" format="boolean" />
         <attr name="clearDrawable" format="reference" />
     </declare-styleable>
 </resources>

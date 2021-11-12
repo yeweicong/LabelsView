@@ -32,6 +32,7 @@
         android:layout_marginTop="10dp"
         android:minHeight="25dp"
         android:padding="5dp"
+        app:isSearchEnd="true"
         app:isEnableClear="true"
         app:clearDrawable="@drawable/ic_del"
         app:labelBackground="@drawable/label_bg"
@@ -47,7 +48,6 @@
         app:maxSelect="0"
         app:minSelect="1"
         app:selectType="NONE"
-        app:wordMargin="10dp"
-        app:isTextBold="true" />
+        app:wordMargin="10dp" />
 
 </LinearLayout>
