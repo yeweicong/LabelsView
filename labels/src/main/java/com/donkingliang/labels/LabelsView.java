@@ -41,6 +41,9 @@ public class LabelsView extends ViewGroup implements View.OnClickListener, View.
     private int mMaxColumns;
     private boolean isSingleLine = false;
     private boolean isTextBold = false;
+    private boolean isEnableClear = false;
+    private Drawable mDrawableClear = null;
+    private LabelTextProvider mLabelTextProvider;
 
     private boolean isIndicator; //只能看，不能手动改变选中状态。
 
@@ -173,6 +176,8 @@ public class LabelsView extends ViewGroup implements View.OnClickListener, View.
 
             isSingleLine = mTypedArray.getBoolean(R.styleable.LabelsView_singleLine, false);
             isTextBold = mTypedArray.getBoolean(R.styleable.LabelsView_isTextBold, false);
+            isEnableClear = mTypedArray.getBoolean(R.styleable.LabelsView_isEnableClear, false);
+            mDrawableClear = mTypedArray.getDrawable(R.styleable.LabelsView_clearDrawable);
 
             mTypedArray.recycle();
         }
@@ -547,6 +552,8 @@ public class LabelsView extends ViewGroup implements View.OnClickListener, View.
         removeAllViews();
         mLabels.clear();
 
+        mLabelTextProvider = provider;
+
         if (labels != null) {
             mLabels.addAll(labels);
             int size = labels.size();
@@ -561,6 +568,25 @@ public class LabelsView extends ViewGroup implements View.OnClickListener, View.
         }
     }
 
+    public <T> void removeLabel(T label){
+        int index = mLabels.indexOf(label);
+        mSelectLabels.remove(label);
+        mLabels.remove(index);
+        removeViewAt(index);
+
+        if (!mLabels.isEmpty() && mSelectLabels.isEmpty() && mSelectType == SelectType.SINGLE_IRREVOCABLY) {
+            setSelects(0);
+        }
+    }
+
+    public <T> void addLabel(T label, LabelTextProvider<T> provider){
+        mLabels.add(label);
+        int index = mLabels.indexOf(label);
+        addLabel(label, index, provider);
+
+        ensureLabelClickable(index);
+    }
+
     /**
      * 获取标签列表
      *
@@ -570,8 +596,8 @@ public class LabelsView extends ViewGroup implements View.OnClickListener, View.
         return (List<T>) mLabels;
     }
 
-    private <T> void addLabel(T data, int position, LabelTextProvider<T> provider) {
-        final TextView label = new TextView(mContext);
+    private <T> void addLabel(T data, final int position, LabelTextProvider<T> provider) {
+        final TextView label = new ClearTextView<T>(mContext);
         label.setPadding(mTextPaddingLeft, mTextPaddingTop, mTextPaddingRight, mTextPaddingBottom);
         label.setTextSize(TypedValue.COMPLEX_UNIT_PX, mTextSize);
         label.setGravity(mLabelGravity);
@@ -585,8 +611,23 @@ public class LabelsView extends ViewGroup implements View.OnClickListener, View.
         label.setOnClickListener(this);
         label.setOnLongClickListener(this);
         label.getPaint().setFakeBoldText(isTextBold);
+
+        // 新增删除图标
+        if(isEnableClear && mDrawableClear != null){
+            ((ClearTextView<T>)label).setEnableClear(isEnableClear);
+            ((ClearTextView<T>)label).setClearDrawable(mDrawableClear);
+            ((ClearTextView<T>)label).setData(data);
+            ((ClearTextView<T>)label).setOnTextClearListener(new ClearTextView.OnTextClearListener<T>() {
+                @Override
+                public void onTextClear(T o) {
+                    removeLabel(o);
+                }
+            });
+            ((ClearTextView<T>)label).setTextClear(provider.getLabelText(label, position, data));
+        } else {
+            label.setText(provider.getLabelText(label, position, data));
+        }
         addView(label, mLabelWidth, mLabelHeight);
-        label.setText(provider.getLabelText(label, position, data));
     }
 
     /**
@@ -598,6 +639,11 @@ public class LabelsView extends ViewGroup implements View.OnClickListener, View.
             TextView label = (TextView) getChildAt(i);
             label.setClickable(mLabelClickListener != null || mLabelLongClickListener != null || mSelectType != SelectType.NONE);
         }
+    }
+
+    private void ensureLabelClickable(int index) {
+        TextView label = (TextView) getChildAt(index);
+        label.setClickable(mLabelClickListener != null || mLabelLongClickListener != null || mSelectType != SelectType.NONE);
     }
 
     @Override
