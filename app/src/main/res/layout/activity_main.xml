@@ -32,7 +32,6 @@
         android:layout_marginTop="10dp"
         android:minHeight="25dp"
         android:padding="5dp"
-        app:isEnableClear="true"
         app:clearDrawable="@drawable/ic_del"
         app:labelBackground="@drawable/label_bg"
         app:labelTextColor="@drawable/label_text_color"
@@ -49,5 +48,15 @@
         app:selectType="NONE"
         app:wordMargin="10dp"
         app:isTextBold="true" />
+
+    <Button
+        android:id="@+id/btn_add"
+        android:layout_marginTop="20dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="添加数据"
+        android:gravity="center"
+        android:paddingTop="10dp"
+        android:paddingBottom="10dp"/>
 
 </LinearLayout>

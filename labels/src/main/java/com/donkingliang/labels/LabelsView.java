@@ -20,6 +20,7 @@ import java.util.List;
 
 public class LabelsView extends ViewGroup implements View.OnClickListener, View.OnLongClickListener {
 
+    public static final int SEARCH_BAR_MIN_WIDTH_PX = 150;
     private Context mContext;
 
     private ColorStateList mTextColor;
@@ -256,12 +257,20 @@ public class LabelsView extends ViewGroup implements View.OnClickListener, View.
         int maxItemHeight = 0; //记录一行中item高度最大的高度
         int lineCount = 1;
         int columnsCount = 0;
+        int viewMeasuredWidth = 0;
 
         for (int i = 0; i < count; i++) {
             View view = getChildAt(i);
             measureChild(view, widthMeasureSpec, heightMeasureSpec);
 
-            if ((lineWidth + view.getMeasuredWidth() > maxWidth)
+            viewMeasuredWidth = view.getMeasuredWidth();
+            if(isEnableClear && i == count - 1){
+                viewMeasuredWidth = maxWidth - lineWidth;
+                if(viewMeasuredWidth < SEARCH_BAR_MIN_WIDTH_PX){
+                    viewMeasuredWidth = SEARCH_BAR_MIN_WIDTH_PX;
+                }
+            }
+            if ((lineWidth + viewMeasuredWidth > maxWidth)
                     || (mMaxColumns > 0 && columnsCount == mMaxColumns)) {
                 lineCount++;
                 if (mMaxLines > 0 && lineCount > mMaxLines) {
@@ -276,7 +285,7 @@ public class LabelsView extends ViewGroup implements View.OnClickListener, View.
                 columnsCount = 0;
             }
 
-            lineWidth += view.getMeasuredWidth();
+            lineWidth += viewMeasuredWidth;
             columnsCount++;
             maxItemHeight = Math.max(maxItemHeight, view.getMeasuredHeight());
 
@@ -336,12 +345,21 @@ public class LabelsView extends ViewGroup implements View.OnClickListener, View.
         int maxItemHeight = 0;
         int lineCount = 1;
         int columnsCount = 0;
+        int viewMeasuredWidth = 0;
 
         int count = getChildCount();
         for (int i = 0; i < count; i++) {
             View view = getChildAt(i);
 
-            if (!isSingleLine && (contentWidth < x + view.getMeasuredWidth() + getPaddingRight()
+            viewMeasuredWidth = view.getMeasuredWidth();
+            if(isEnableClear && i == count - 1){
+                viewMeasuredWidth = contentWidth - x - getPaddingRight() + view.getMinimumWidth();
+                if(viewMeasuredWidth < SEARCH_BAR_MIN_WIDTH_PX){
+                    viewMeasuredWidth = SEARCH_BAR_MIN_WIDTH_PX;
+                }
+            }
+
+            if (!isSingleLine && (contentWidth < x + viewMeasuredWidth + getPaddingRight()
                     || (mMaxColumns > 0 && columnsCount == mMaxColumns))) {
                 lineCount++;
                 if (mMaxLines > 0 && lineCount > mMaxLines) {
@@ -358,8 +376,8 @@ public class LabelsView extends ViewGroup implements View.OnClickListener, View.
                 break;
             }
 
-            view.layout(x, y, x + view.getMeasuredWidth(), y + view.getMeasuredHeight());
-            x += view.getMeasuredWidth();
+            view.layout(x, y, x + viewMeasuredWidth, y + view.getMeasuredHeight());
+            x += viewMeasuredWidth;
             x += mWordMargin;
             maxItemHeight = Math.max(maxItemHeight, view.getMeasuredHeight());
             columnsCount++;

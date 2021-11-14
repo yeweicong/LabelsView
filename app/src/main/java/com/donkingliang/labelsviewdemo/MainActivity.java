@@ -3,6 +3,8 @@ package com.donkingliang.labelsviewdemo;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -16,6 +18,7 @@ public class MainActivity extends AppCompatActivity implements LabelsView.OnLabe
 
     private LabelsView btnLabels;
     private LabelsView labelsView;
+    private Button addDataBtn;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -23,6 +26,7 @@ public class MainActivity extends AppCompatActivity implements LabelsView.OnLabe
         setContentView(R.layout.activity_main);
         btnLabels = findViewById(R.id.btnLabels);
         labelsView = findViewById(labels);
+        addDataBtn = findViewById(R.id.btn_add);
 
         // 按钮组
         ArrayList<String> btns = new ArrayList<>();
@@ -70,17 +74,27 @@ public class MainActivity extends AppCompatActivity implements LabelsView.OnLabe
         testList.add(new TestBean("Python", 11));
         testList.add(new TestBean("Swift", 12));
 
-        labelsView.setLabels(testList, new LabelsView.LabelTextProvider<TestBean>() {
+        final LabelsView.LabelTextProvider<TestBean> provider = new LabelsView.LabelTextProvider<TestBean>() {
             @Override
             public CharSequence getLabelText(TextView label, int position, TestBean data) {
                 return data.getName();
             }
-        });
+        };
+
+        labelsView.setLabels(testList, provider);
 
         // 设置最大显示行数，小于等于0则不限行数。
 //        labelsView.setMaxLines(1);
 
         labelsView.clearAllSelect();
+
+        addDataBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                TestBean testBean = new TestBean("哈哈", 123);
+                labelsView.addLabel(testBean, provider);
+            }
+        });
     }
 
     @Override
