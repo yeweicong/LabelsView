@@ -48,6 +48,17 @@
         app:maxSelect="0"
         app:minSelect="1"
         app:selectType="NONE"
-        app:wordMargin="10dp" />
+        app:wordMargin="10dp"
+        app:isTextBold="true" />
+
+    <Button
+        android:id="@+id/btn_add"
+        android:layout_marginTop="20dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="添加数据"
+        android:gravity="center"
+        android:paddingTop="10dp"
+        android:paddingBottom="10dp"/>
 
 </LinearLayout>
