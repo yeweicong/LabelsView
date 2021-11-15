@@ -19,6 +19,7 @@ public class MainActivity extends AppCompatActivity implements LabelsView.OnLabe
     private LabelsView btnLabels;
     private LabelsView labelsView;
     private Button addDataBtn;
+    private Button delDataBtn;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -27,6 +28,7 @@ public class MainActivity extends AppCompatActivity implements LabelsView.OnLabe
         btnLabels = findViewById(R.id.btnLabels);
         labelsView = findViewById(labels);
         addDataBtn = findViewById(R.id.btn_add);
+        delDataBtn = findViewById(R.id.btn_del);
 
         // 按钮组
         ArrayList<String> btns = new ArrayList<>();
@@ -91,6 +93,13 @@ public class MainActivity extends AppCompatActivity implements LabelsView.OnLabe
 
         labelsView.setLabels(testList, provider);
 
+        labelsView.setOnRemoveItemListener(new LabelsView.OnRemoveItemListener<TestBean>() {
+            @Override
+            public void onRemove(TestBean data) {
+                Toast.makeText(MainActivity.this, "name:" + data.getName(), Toast.LENGTH_SHORT).show();
+            }
+        });
+
         // 设置最大显示行数，小于等于0则不限行数。
 //        labelsView.setMaxLines(1);
 
@@ -101,6 +110,12 @@ public class MainActivity extends AppCompatActivity implements LabelsView.OnLabe
             public void onClick(View v) {
                 TestBean testBean = new TestBean("哈哈", 123);
                 labelsView.addLabel(testBean, provider);
+            }
+        });
+        delDataBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                labelsView.removeLastLabel();
             }
         });
     }

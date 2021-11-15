@@ -60,5 +60,14 @@
         android:gravity="center"
         android:paddingTop="10dp"
         android:paddingBottom="10dp"/>
+    <Button
+        android:id="@+id/btn_del"
+        android:layout_marginTop="20dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="删除数据"
+        android:gravity="center"
+        android:paddingTop="10dp"
+        android:paddingBottom="10dp"/>
 
 </LinearLayout>

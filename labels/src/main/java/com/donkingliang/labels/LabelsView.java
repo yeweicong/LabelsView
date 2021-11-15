@@ -78,6 +78,7 @@ public class LabelsView extends ViewGroup implements View.OnClickListener, View.
     private OnLabelSelectChangeListener mLabelSelectChangeListener;
     private OnSelectChangeIntercept mOnSelectChangeIntercept;
     private SearchBarActionListener mSearchBarActionListener;
+    private OnRemoveItemListener mOnRemoveItemListener;
 
     private EditText mSearchEndEditText;
 
@@ -619,6 +620,10 @@ public class LabelsView extends ViewGroup implements View.OnClickListener, View.
         }
 
         addEditTextView();
+
+        if(mOnRemoveItemListener != null){
+            mOnRemoveItemListener.onRemove(label);
+        }
     }
 
     public <T> void addLabel(T label, LabelTextProvider<T> provider){
@@ -845,6 +850,16 @@ public class LabelsView extends ViewGroup implements View.OnClickListener, View.
 
         }
         mSelectLabels.removeAll(temps);
+    }
+
+    public void addSelect(int position) {
+        TextView label = (TextView) getChildAt(position);
+        setLabelSelect(label, true);
+    }
+
+    public void removeSelect(int position) {
+        TextView label = (TextView) getChildAt(position);
+        setLabelSelect(label, false);
     }
 
     /**
@@ -1339,6 +1354,10 @@ public class LabelsView extends ViewGroup implements View.OnClickListener, View.
         mSearchBarActionListener = searchBarActionListener;
     }
 
+    public void setOnRemoveItemListener(OnRemoveItemListener onRemoveItemListener) {
+        mOnRemoveItemListener = onRemoveItemListener;
+    }
+
     /**
      * sp转px
      */
@@ -1445,4 +1464,7 @@ public class LabelsView extends ViewGroup implements View.OnClickListener, View.
         void onSearch(String searchKey);
     }
 
+    public interface OnRemoveItemListener<T>{
+        void onRemove(T data);
+    }
 }
