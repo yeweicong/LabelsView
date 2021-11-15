@@ -657,10 +657,8 @@ public class LabelsView extends ViewGroup implements View.OnClickListener, View.
                     if(mSearchBarActionListener != null){
                         String key = mSearchEndEditText.getText().toString();
 
-                        if(i == EditorInfo.IME_ACTION_SEARCH){
-                            if (!TextUtils.isEmpty(key)) {
-                                mSearchBarActionListener.onSearch(key);
-                            }
+                        if(i == EditorInfo.IME_ACTION_SEARCH) {
+                            mSearchBarActionListener.onSearch(key);
                         }
                     }
                     return false;
