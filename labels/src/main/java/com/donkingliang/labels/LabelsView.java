@@ -278,7 +278,7 @@ public class LabelsView extends ViewGroup implements View.OnClickListener, View.
             measureChild(view, widthMeasureSpec, heightMeasureSpec);
 
             viewMeasuredWidth = view.getMeasuredWidth();
-            if(isEnableClear && i == count - 1){
+            if(isSearchEnd && i == count - 1){
                 viewMeasuredWidth = maxWidth - lineWidth;
                 if(viewMeasuredWidth < SEARCH_BAR_MIN_WIDTH_PX){
                     viewMeasuredWidth = SEARCH_BAR_MIN_WIDTH_PX;
@@ -368,8 +368,8 @@ public class LabelsView extends ViewGroup implements View.OnClickListener, View.
             View view = getChildAt(i);
 
             viewMeasuredWidth = view.getMeasuredWidth();
-            if(isEnableClear && i == count - 1){
-                viewMeasuredWidth = contentWidth - x - getPaddingRight() + view.getMinimumWidth();
+            if(isSearchEnd && i == count - 1){
+                viewMeasuredWidth = contentWidth - x - getPaddingRight();
                 if(viewMeasuredWidth < SEARCH_BAR_MIN_WIDTH_PX){
                     viewMeasuredWidth = SEARCH_BAR_MIN_WIDTH_PX;
                 }
@@ -642,7 +642,6 @@ public class LabelsView extends ViewGroup implements View.OnClickListener, View.
                 mSearchEndEditText.setBackground(null);
             }
             mSearchEndEditText.setCursorVisible(true);
-            mSearchEndEditText.setInputType(InputType.TYPE_CLASS_TEXT);
             mSearchEndEditText.setTextSize(TypedValue.COMPLEX_UNIT_PX, mTextSize);
             mSearchEndEditText.setImeOptions(EditorInfo.IME_ACTION_SEARCH);
             mSearchEndEditText.setMaxLines(1);
@@ -680,25 +679,11 @@ public class LabelsView extends ViewGroup implements View.OnClickListener, View.
         } else {
             removeView(mSearchEndEditText);
         }
-        Log.e("test1112", "111 mmw:" + mMaxLineWidth + " mlw:" + mLastLineWidth + " c:" + LabelsView.this.toString());
-
+        mSearchEndEditText.setInputType(InputType.TYPE_CLASS_TEXT);
         mSearchEndEditText.setFocusable(true);
         mSearchEndEditText.setFocusableInTouchMode(true);
-        mSearchEndEditText.setSelection(0);
+        mSearchEndEditText.requestFocus();
         addView(mSearchEndEditText, LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
-
-        if()
-        getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
-            @Override
-            public void onGlobalLayout() {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-                    LabelsView.this.getViewTreeObserver().removeOnGlobalLayoutListener(this);
-                }
-                Log.e("test1112", "mmw:" + mMaxLineWidth + " mlw:" + mLastLineWidth + " c:" + LabelsView.this.toString());
-                mSearchEndEditText.setWidth(mMaxLineWidth - mLastLineWidth);
-                mSearchEndEditText.invalidate();
-            }
-        });
     }
 
     /**
