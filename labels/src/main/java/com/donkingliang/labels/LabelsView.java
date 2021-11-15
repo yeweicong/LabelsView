@@ -282,7 +282,8 @@ public class LabelsView extends ViewGroup implements View.OnClickListener, View.
             if(isSearchEnd && i == count - 1){
                 viewMeasuredWidth = maxWidth - lineWidth;
                 if(viewMeasuredWidth < SEARCH_BAR_MIN_WIDTH_PX){
-                    viewMeasuredWidth = SEARCH_BAR_MIN_WIDTH_PX;
+                    Log.e("test1115","mw:" + maxWidth);
+                    viewMeasuredWidth = maxWidth;
                 }
             }
             if ((lineWidth + viewMeasuredWidth > maxWidth)
@@ -372,7 +373,8 @@ public class LabelsView extends ViewGroup implements View.OnClickListener, View.
             if(isSearchEnd && i == count - 1){
                 viewMeasuredWidth = contentWidth - x - getPaddingRight();
                 if(viewMeasuredWidth < SEARCH_BAR_MIN_WIDTH_PX){
-                    viewMeasuredWidth = SEARCH_BAR_MIN_WIDTH_PX;
+                    Log.e("test1115","cw:" + (contentWidth - getPaddingLeft() - getPaddingRight()));
+                    viewMeasuredWidth = contentWidth - getPaddingLeft() - getPaddingRight();
                 }
             }
 
@@ -670,7 +672,7 @@ public class LabelsView extends ViewGroup implements View.OnClickListener, View.
                 @Override
                 public boolean onKey(View view, int i, KeyEvent keyEvent) {
                     if(mSearchBarActionListener != null){
-                        if(i == KeyEvent.KEYCODE_DEL){
+                        if(i == KeyEvent.KEYCODE_DEL && keyEvent.getAction() == KeyEvent.ACTION_DOWN){
                             String key = mSearchEndEditText.getText().toString();
                             // 如果是最后一个 且点击删除按钮 会从后面删起
                             if (TextUtils.isEmpty(key)) {
