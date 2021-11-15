@@ -282,7 +282,6 @@ public class LabelsView extends ViewGroup implements View.OnClickListener, View.
             if(isSearchEnd && i == count - 1){
                 viewMeasuredWidth = maxWidth - lineWidth;
                 if(viewMeasuredWidth < SEARCH_BAR_MIN_WIDTH_PX){
-                    Log.e("test1115","mw:" + maxWidth);
                     viewMeasuredWidth = maxWidth;
                 }
             }
@@ -373,7 +372,6 @@ public class LabelsView extends ViewGroup implements View.OnClickListener, View.
             if(isSearchEnd && i == count - 1){
                 viewMeasuredWidth = contentWidth - x - getPaddingRight();
                 if(viewMeasuredWidth < SEARCH_BAR_MIN_WIDTH_PX){
-                    Log.e("test1115","cw:" + (contentWidth - getPaddingLeft() - getPaddingRight()));
                     viewMeasuredWidth = contentWidth - getPaddingLeft() - getPaddingRight();
                 }
             }
